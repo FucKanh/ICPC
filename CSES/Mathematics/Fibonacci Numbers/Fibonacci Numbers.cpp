@@ -21,14 +21,14 @@ signed main ( )
   
   /*
 	Nhân Ma Trận O(logn)
-		   n
-	[0 1]	   = [Fn+1 Fn]
-	[1 1]	     [Fn Fn+1]
+	     n
+	[0 1]    = [Fn+1 Fn]
+	[1 1]	   [Fn Fn+1]
 
 	=>
-		   n-1
-	[0 1]	   = [Fn Fn-1]
-	[1 1]	     [Fn-1 Fn]
+	     n-1
+	[0 1]	 = [Fn Fn-1]
+	[1 1]	   [Fn-1 Fn]
   */
   
 	while ( n )
