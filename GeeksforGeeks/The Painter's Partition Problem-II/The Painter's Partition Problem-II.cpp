@@ -20,14 +20,13 @@ class Solution
         // code here
         // return minimum time
         m = min(m, n);
-        ll ans, low = 0, high = 0;
+        ll low = 0, high = 0;
         for (int i = 1; i <= n; ++i)
         {
             low = max(low, (ll) arr[i - 1]);
             high += arr[i - 1];
         }
-        ans = high;
-        while (low <= high)
+        while (low < high)
         {
             ll mid = (low + high) / 2;
             ll s = 0, cnt = 1;
@@ -45,14 +44,11 @@ class Solution
                     chk = 0;
             }
             if (chk)
-            {
-                ans = min(ans, mid);
-                high = mid - 1;
-            }
+                high = mid;
             else
                 low = mid + 1;
         }
-        return ans;
+        return low;
     }
 };
 
