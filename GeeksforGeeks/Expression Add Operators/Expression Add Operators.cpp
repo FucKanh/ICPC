@@ -23,7 +23,7 @@ class Solution {
         }
         else
         {
-            if (!i || (i && S[i - 1] != '0') || num)
+            if (!i || num)
             {
                 if (sym != "*")
                     Backtrack(i + 1, sum, 10 * s + (s >= 0 ? 1 : -1) * (S[i] - '0'), 10 * s + (s >= 0 ? 1 : -1) * (S[i] - '0'), 10 * s + (s >= 0 ? 1 : -1) * (S[i] - '0'), str + S[i], sym);
