@@ -1,1 +1,0 @@
-Nhớ lưu theo format OJ/id-name.cpp
