@@ -1,3 +1,5 @@
+//Link: https://practice.geeksforgeeks.org/problems/allocate-minimum-number-of-pages0937/1
+
 //{ Driver Code Starts
 // Initial template for C++
 
