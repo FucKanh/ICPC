@@ -3,7 +3,7 @@ import streamlit as st
 from supabase import create_client
 from streamlit_ace import st_ace
 
-class codeUpload:
+class uploadNsearch:
     '''Upload code to database and save source code'''
     
     default_ojs = ['Atcoder', 'CSES', 'Codeforce', 'GeeksforGeeks', 'Leetcode', 'USACO', 'VNOJ','Other']
@@ -20,14 +20,14 @@ class codeUpload:
         self.spb.storage.from_("source_code")
 
         
-    def checkInput(self,oj,prob_type,name,id,link) -> None:
+    def checkInput(self,oj,prob_type,name,id,link) -> bool:
         return oj != '' and prob_type != '' and (name != '' or id != '') and link != ''
 
     def uploadCode(self) -> None:
-
+        if "code_submit" not in st.session_state:
+                st.session_state['code_submit'] = False
+        
         with st.form('Submit code'):
-            if "submit" not in st.session_state:
-                st.session_state['submit'] = False
             oj = st.selectbox(label='OJ', options=self.default_ojs)
             problem_type = st.selectbox(label='Type', options=self.default_type)
             name = st.text_input(label='Name')
@@ -38,11 +38,12 @@ class codeUpload:
             if st.form_submit_button("Submit code"):
                 if (not self.checkInput(oj,problem_type,name,id,link)): st.error('Not valid. Please fill all (name or id is nullable)')
                 else:
-                    st.session_state['submit'] = True
+                    st.session_state['code_submit'] = True
 
         file_name = "_".join([oj,problem_type,name,id]) + ".txt"
         executed = False
-        if (st.session_state['submit']):
+
+        if (st.session_state['code_submit']):
             tmp = self.spb.table("Problem list").select("oj","type","name","oj_id","solved_by").eq("oj",oj).eq("type",problem_type).eq("problem_link",link)
             if (name != ''): tmp = tmp.eq("name",name)
             if (id != ''): tmp = tmp.eq("oj_id",id)
@@ -77,14 +78,32 @@ class codeUpload:
         if os.path.exists(file_name):
             os.remove(file_name)
 
-        if st.session_state['submit'] and executed:
-            st.session_state['submit'] = False
+        if st.session_state['code_submit'] and executed:
+            st.session_state['code_submit'] = False
             st.experimental_rerun()
+
+    def codeSearch(self) -> None:
+        if "code_search" not in st.session_state:
+                st.session_state["code_search"] = False
+
+        with st.form('Search source code'):
+            oj = st.selectbox(label='OJ', options=self.default_ojs)
+            problem_type = st.selectbox(label='Type', options=self.default_type)
+            name = st.text_input(label='Name')
+            id = st.text_input(label='ID (depend on OJ)')
+            link = st.text_input(label='Link to problem')
+            file_name = st.text_input(label='File name')
+
+            if st.form_submit_button("Submit code"):
+                st.session_state['code_search'] = True
+        
+        if st.session_state['code_search']:
+            ...
 
 
 
 def test():
-    tmp = codeUpload("huy")
+    tmp = uploadNsearch("huy")
     tmp.uploadCode()
 
 if __name__ == "__main__":

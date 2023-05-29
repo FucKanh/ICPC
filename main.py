@@ -1,6 +1,6 @@
 import streamlit as st
-import code_search
-import code_upload
+import authenticator
+import upload_and_search
 
 def main():
     code_search,code_upload = st.tabs([
