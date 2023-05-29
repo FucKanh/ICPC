@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import streamlit as st
 from supabase import create_client
 from streamlit_ace import st_ace
@@ -9,12 +10,14 @@ class uploadNsearch:
     default_ojs = ['Atcoder', 'CSES', 'Codeforce', 'GeeksforGeeks', 'Leetcode', 'USACO', 'VNOJ','Other']
     default_type = ['Binary search', 'DP', 'Data structure', 'Game theory', 'Geometry', 'Graph', 'Greedy', 'Math', 'Matrix', 'String', 'Tree']
 
-    def __init__(self,user) -> None:
+    def __init__(self,user : str) -> None:
         self.current_user = user
-        url = 'https://zwiuiboxrduhnkawwnxg.supabase.co'
-        key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3aXVpYm94cmR1aG5rYXd3bnhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODUwMjUyODMsImV4cCI6MjAwMDYwMTI4M30.g8iSc7_F0PirUd3GcxYYlEZ-60sONXRiYg_L58mD3Ro'
+        url = st.secrets['project-info']['url']
+        key = st.secrets['project-info']['key']
+        email = st.secrets['database-user-login']['email']
+        pwd = st.secrets['database-user-login']['pass']
         self.spb = create_client(url,key)
-        self.spb.auth.sign_in_with_password({"email":"trangiahuy211207@gmail.com","password":"huy21121234"})
+        self.spb.auth.sign_in_with_password({"email": email, "password":pwd})
         session = self.spb.auth.get_session()
         self.spb.postgrest.auth(session.access_token)
         self.spb.storage.from_("source_code")
@@ -44,11 +47,11 @@ class uploadNsearch:
         executed = False
 
         if (st.session_state['code_submit']):
-            tmp = self.spb.table("Problem list").select("oj","type","name","oj_id","solved_by").eq("oj",oj).eq("type",problem_type).eq("problem_link",link)
-            if (name != ''): tmp = tmp.eq("name",name)
-            if (id != ''): tmp = tmp.eq("oj_id",id)
+            query = self.spb.table("Problem list").select("oj","type","name","oj_id","problem_link","solved_by").eq("oj",oj).eq("type",problem_type).eq("problem_link",link)
+            if (name != ''): query = query.eq("name",name)
+            if (id != ''): query = query.eq("oj_id",id)
 
-            res = tmp.execute().data
+            res = query.execute().data
             with open(file_name,"w") as f:
                 f.write(code_content)
             
@@ -94,17 +97,47 @@ class uploadNsearch:
             link = st.text_input(label='Link to problem')
             file_name = st.text_input(label='File name')
 
-            if st.form_submit_button("Submit code"):
+            if st.form_submit_button("Search"):
                 st.session_state['code_search'] = True
         
         if st.session_state['code_search']:
-            ...
+            res = None
 
+            query = self.spb.table("Problem list").select("oj","type","name","oj_id","problem_link","solved_by","file_name")
+            if oj != '' or problem_type != '' or name != '' or id != '' or link != '' or file_name != '':
+                if oj != '': query.eq('oj',oj)
+                if problem_type != '': query.eq('type',problem_type)
+                if name != '': query.eq('name',name)
+                if id != '': query.eq('oj_id',id)
+                if link != '': query.eq('problem_link',link)
+                if file_name != '': query.eq('file_name',file_name)
+                res = query.execute().data
 
-
+            dict_res = {
+                'oj':[],
+                'type':[],
+                'name':[],
+                'oj_id':[],
+                'problem_link':[],
+                'solved_by':[]
+            }
+            file_name_list = []
+            for data in res:
+                for col in ["oj","type","name","oj_id","problem_link","solved_by"]:
+                    dict_res[col].append(data[col])
+                file_name_list.append(data['file_name'])
+            
+            df = pd.DataFrame(dict_res)
+            st.dataframe(df)
+            
+            for file_name in file_name_list:
+                byte_data = self.spb.storage.from_("source_code").download(f'source_code/{file_name}')
+                content = byte_data.decode('utf-8')
+                st_ace(value=content,readonly=True,theme="dracula",language="c_cpp")
+                
 def test():
     tmp = uploadNsearch("huy")
-    tmp.uploadCode()
+    tmp.codeSearch()
 
 if __name__ == "__main__":
     test()
