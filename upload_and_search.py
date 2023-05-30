@@ -157,7 +157,7 @@ class uploadNsearch:
             st_ace(value=content,readonly=True,theme="dracula",language="c_cpp")
                 
 def test():
-    tmp = uploadNsearch("huy")
+    tmp = uploadNsearch()
     tmp.codeSearch()
 
 if __name__ == "__main__":
