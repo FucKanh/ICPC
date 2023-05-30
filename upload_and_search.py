@@ -146,11 +146,12 @@ class uploadNsearch:
             
             st.write(f"Page {st.session_state['page_state']} in {self.numPage}")
 
-            col1,col2 = st.columns(2)
+            col1,col2,col3 = st.columns(3)
             with col1: st.button('Prev',on_click=self.prevPage)
             with col2: st.button('Next',on_click=self.nextPage)
-            user_page_input = st.number_input(label='',value=1,min_value=1,max_value=self.numPage)
-            if user_page_input != 0: st.session_state['page_state'] = user_page_input
+            with col3: 
+                user_page_input = st.number_input(label='',value=st.session_state['page_state'],min_value=1,max_value=self.numPage)
+                if user_page_input != 0: st.session_state['page_state'] = user_page_input
 
             byte_data = self.spb.storage.from_("source_code").download(f'source_code/{file_name_list[ st.session_state["page_state"] - 1]}')
             content = byte_data.decode('utf-8')
