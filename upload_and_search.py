@@ -127,30 +127,33 @@ class uploadNsearch:
                 self.numPage = res.count
                 res = res.data
 
-            dict_res = {
-                'oj':[],
-                'type':[],
-                'name':[],
-                'oj_id':[],
-                'problem_link':[],
-                'solved_by':[]
-            }
-            file_name_list = []
-            for data in res:
-                for col in ["oj","type","name","oj_id","problem_link","solved_by"]:
-                    dict_res[col].append(data[col])
-                file_name_list.append(data['file_name'])
-            
-            df = pd.DataFrame(dict_res)
-            st.dataframe(df)
-            
-            user_page_input = st.number_input(label='Change page',value=st.session_state['page_state'],min_value=1,max_value=self.numPage)
-            if user_page_input != 0: st.session_state['page_state'] = user_page_input
-            st.write(f"Page {st.session_state['page_state']} in {self.numPage}")
+            if self.numPage == 0:
+                st.warning("No result found")
+            else:
+                dict_res = {
+                    'oj':[],
+                    'type':[],
+                    'name':[],
+                    'oj_id':[],
+                    'problem_link':[],
+                    'solved_by':[]
+                }
+                file_name_list = []
+                for data in res:
+                    for col in ["oj","type","name","oj_id","problem_link","solved_by"]:
+                        dict_res[col].append(data[col])
+                    file_name_list.append(data['file_name'])
+                
+                df = pd.DataFrame(dict_res)
+                st.dataframe(df)
+                
+                user_page_input = st.number_input(label='Change page',value=st.session_state['page_state'],min_value=1,max_value=self.numPage)
+                if user_page_input != 0: st.session_state['page_state'] = user_page_input
+                st.write(f"Page {st.session_state['page_state']} in {self.numPage}")
 
-            byte_data = self.spb.storage.from_("source_code").download(f'source_code/{file_name_list[ st.session_state["page_state"] - 1]}')
-            content = byte_data.decode('utf-8')
-            st_ace(value=content,readonly=True,theme="dracula",language="c_cpp")
+                byte_data = self.spb.storage.from_("source_code").download(f'source_code/{file_name_list[ st.session_state["page_state"] - 1]}')
+                content = byte_data.decode('utf-8')
+                st_ace(value=content,readonly=True,theme="dracula",language="c_cpp")
                 
 def test():
     tmp = uploadNsearch()
