@@ -22,13 +22,13 @@ def post_authenticate(auth : Authenticate,username):
 
 def main():
 
-    auth = Authenticate(
-            credentials=st.secrets['credentials'],
-            cookie_name=st.secrets['cookie']['name'],
-            key=st.secrets['cookie']['key'],
-            cookie_expiry_days=st.secrets['cookie']['expiry_days'],
-            preauthorized=st.secrets['preauthorized']
-        )
+    # auth = Authenticate(
+    #         credentials=st.secrets['credentials'],
+    #         cookie_name=st.secrets['cookie']['name'],
+    #         key=st.secrets['cookie']['key'],
+    #         cookie_expiry_days=st.secrets['cookie']['expiry_days'],
+    #         preauthorized=st.secrets['preauthorized']
+    #     )
     
 
     # name, authentication_status, username = auth.login('Login', 'main')
