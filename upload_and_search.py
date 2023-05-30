@@ -22,7 +22,14 @@ class uploadNsearch:
         self.spb.postgrest.auth(session.access_token)
         self.spb.storage.from_("source_code")
 
-        
+    def prevPage(self):
+        if st.session_state['page_state'] > 1:
+            st.session_state['page_state'] -= 1
+
+    def nextPage(self):
+        if st.session_state['page_state'] < self.numPage:
+            st.session_state['page_state'] += 1
+
     def checkInput(self,oj,prob_type,name,id,link) -> bool:
         return oj != '' and prob_type != '' and (name != '' or id != '') and link != ''
 
@@ -87,7 +94,9 @@ class uploadNsearch:
 
     def codeSearch(self) -> None:
         if "code_search" not in st.session_state:
-                st.session_state["code_search"] = False
+            st.session_state["code_search"] = False
+        if 'page_state' not in st.session_state:
+            st.session_state['page_state'] = 1
 
         with st.form('Search source code'):
             oj = st.selectbox(label='OJ', options=self.default_ojs)
@@ -103,7 +112,7 @@ class uploadNsearch:
         if st.session_state['code_search']:
             res = None
 
-            query = self.spb.table("Problem list").select("oj","type","name","oj_id","problem_link","solved_by","file_name")
+            query = self.spb.table("Problem list").select("oj","type","name","oj_id","problem_link","solved_by","file_name",count = 'exact')
             if oj != '' or problem_type != '' or name != '' or id != '' or link != '' or file_name != '':
                 if oj != '': query.eq('oj',oj)
                 if problem_type != '': query.eq('type',problem_type)
@@ -111,7 +120,9 @@ class uploadNsearch:
                 if id != '': query.eq('oj_id',id)
                 if link != '': query.eq('problem_link',link)
                 if file_name != '': query.eq('file_name',file_name)
-                res = query.execute().data
+                res = query.execute()
+                self.numPage = res.count
+                res = res.data
 
             dict_res = {
                 'oj':[],
@@ -130,10 +141,14 @@ class uploadNsearch:
             df = pd.DataFrame(dict_res)
             st.dataframe(df)
             
-            for file_name in file_name_list:
-                byte_data = self.spb.storage.from_("source_code").download(f'source_code/{file_name}')
-                content = byte_data.decode('utf-8')
-                st_ace(value=content,readonly=True,theme="dracula",language="c_cpp")
+            st.write(f"Page {st.session_state['page_state']} in {self.numPage}")
+            col1,col2 = st.columns(2)
+            with col1: st.button('Prev',on_click=self.prevPage)
+            with col2: st.button('Next',on_click=self.nextPage)
+
+            byte_data = self.spb.storage.from_("source_code").download(f'source_code/{file_name_list[ st.session_state["page_state"] - 1]}')
+            content = byte_data.decode('utf-8')
+            st_ace(value=content,readonly=True,theme="dracula",language="c_cpp")
                 
 def test():
     tmp = uploadNsearch("huy")
