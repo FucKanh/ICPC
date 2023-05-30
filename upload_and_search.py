@@ -10,8 +10,7 @@ class uploadNsearch:
     default_ojs = ['Atcoder', 'CSES', 'Codeforce', 'GeeksforGeeks', 'Leetcode', 'USACO', 'VNOJ','Other']
     default_type = ['Binary search', 'DP', 'Data structure', 'Game theory', 'Geometry', 'Graph', 'Greedy', 'Math', 'Matrix', 'String', 'Tree']
 
-    def __init__(self,user : str) -> None:
-        self.current_user = user
+    def __init__(self) -> None:
         url = st.secrets['project-info']['url']
         key = st.secrets['project-info']['key']
         email = st.secrets['database-user-login']['email']
@@ -43,6 +42,7 @@ class uploadNsearch:
             name = st.text_input(label='Name')
             id = st.text_input(label='ID (depend on OJ)')
             link = st.text_input(label='Link to problem')
+            solved_by = st.selectbox(label='Solved by',options=["Huy","Khang","Khanh"])
             code_content = st_ace(theme="dracula",language="c_cpp")
 
             if st.form_submit_button("Submit code"):
@@ -63,7 +63,7 @@ class uploadNsearch:
                 f.write(code_content)
             
             if res != []:
-                st.warning("Problem already existed. Overwrite?")
+                st.warning("Problem already existed. Overwrite? If no, edit your respond")
                 st.write(res)
                 if st.button("Continue"):
                     executed = True
@@ -81,7 +81,7 @@ class uploadNsearch:
                                                     "oj_id":id,
                                                     "problem_link":link,
                                                     "file_name":file_name,
-                                                    "solved_by":self.current_user
+                                                    "solved_by":solved_by
                                                 }).execute()
             
         
@@ -104,10 +104,12 @@ class uploadNsearch:
             name = st.text_input(label='Name')
             id = st.text_input(label='ID (depend on OJ)')
             link = st.text_input(label='Link to problem')
+            solved_by = st.text_input(label='Solved by')
             file_name = st.text_input(label='File name')
 
             if st.form_submit_button("Search"):
                 st.session_state['code_search'] = True
+                st.session_state['page_search'] = 1
         
         if st.session_state['code_search']:
             res = None
@@ -119,6 +121,7 @@ class uploadNsearch:
                 if name != '': query.eq('name',name)
                 if id != '': query.eq('oj_id',id)
                 if link != '': query.eq('problem_link',link)
+                if solved_by != '': query.eq('solved_by',solved_by)
                 if file_name != '': query.eq('file_name',file_name)
                 res = query.execute()
                 self.numPage = res.count
@@ -142,9 +145,12 @@ class uploadNsearch:
             st.dataframe(df)
             
             st.write(f"Page {st.session_state['page_state']} in {self.numPage}")
+
             col1,col2 = st.columns(2)
             with col1: st.button('Prev',on_click=self.prevPage)
             with col2: st.button('Next',on_click=self.nextPage)
+            user_page_input = st.number_input(label='',value=0,min_value=1,max_value=self.numPage)
+            if user_page_input != 0: st.session_state['page_state'] = user_page_input
 
             byte_data = self.spb.storage.from_("source_code").download(f'source_code/{file_name_list[ st.session_state["page_state"] - 1]}')
             content = byte_data.decode('utf-8')
