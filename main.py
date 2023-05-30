@@ -4,7 +4,7 @@ from upload_and_search import uploadNsearch
 
 def main():
 
-    upload_and_search = uploadNsearch('huy')
+    upload_and_search = uploadNsearch
     code_search,code_upload = st.tabs(['Search code','Submit code'])
 
     with code_search:
