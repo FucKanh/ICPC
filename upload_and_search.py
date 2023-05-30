@@ -8,7 +8,7 @@ class uploadNsearch:
     '''Upload code to database and save source code'''
     
     default_ojs = ['Atcoder', 'CSES', 'Codeforce', 'GeeksforGeeks', 'Leetcode', 'USACO', 'VNOJ','Other']
-    default_type = ['Binary search', 'DP', 'Data structure', 'Game theory', 'Geometry', 'Graph', 'Greedy', 'Math', 'Matrix', 'String', 'Tree']
+    default_type = ['Binary search', 'DP', 'Data structure', 'Game theory', 'Geometry', 'Graph', 'Greedy', 'Math', 'Matrix', 'String', 'Tree','Other']
 
     def __init__(self) -> None:
         url = st.secrets['project-info']['url']
@@ -42,7 +42,7 @@ class uploadNsearch:
             name = st.text_input(label='Name')
             id = st.text_input(label='ID (depend on OJ)')
             link = st.text_input(label='Link to problem')
-            solved_by = st.selectbox(label='Solved by',options=["Huy","Khang","Khanh"])
+            solved_by = st.selectbox(label='Solved by',options=["Huy","Khang","Khanh",'All'])
             code_content = st_ace(theme="dracula",language="c_cpp")
 
             if st.form_submit_button("Submit code"):
