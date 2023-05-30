@@ -1,0 +1,5 @@
+streamlit
+streamlit_authenticator
+pandas
+supabase
+streamlit_ace

@@ -12,25 +12,6 @@ def post_authenticate(auth : Authenticate,username):
             st.success('Password modified successfully')
     except Exception as e:
         st.error(e)
-    
-    try:
-        username_forgot_pw, email_forgot_password, random_password = auth.forgot_password('Forgot password','sidebar')
-        if username_forgot_pw:
-            st.success('New password sent securely. Check your email')
-        else:
-            st.error('Username not found')
-    except Exception as e:
-        st.error(e)
-
-    try:
-        username_forgot_username, email_forgot_username = auth.forgot_username('Forgot username','sidebar')
-        if username_forgot_username:
-            st.success('Username sent securely')
-
-        else:
-            st.error('Email not found')
-    except Exception as e:
-        st.error(e)
 
     try:
         if auth.update_user_details(username, 'Update user details','sidebar'):
@@ -52,10 +33,30 @@ def main():
 
     name, authentication_status, username = auth.login('Login', 'main')
 
-    if st.session_state["authentication_status"] is False:
-        st.error('Incorrect username/password')
-    elif st.session_state["authentication_status"] is None:
+    if st.session_state["authentication_status"] is None:
         st.write("Please enter username and password")
+        try:
+            username_forgot_pw, email_forgot_password, random_password = auth.forgot_password('Forgot password','sidebar')
+            if username_forgot_pw:
+                st.success('New password sent securely. Check your email')
+            else:
+                st.error('Username not found')
+        except Exception as e:
+            st.error(e)
+
+        try:
+            username_forgot_username, email_forgot_username = auth.forgot_username('Forgot username','sidebar')
+            if username_forgot_username:
+                st.success('Username sent securely')
+
+            else:
+                st.error('Email not found')
+        except Exception as e:
+            st.error(e)
+    
+    elif st.session_state["authentication_status"] is False:
+        st.error('Incorrect username/password')
+
     elif st.session_state["authentication_status"]:
         post_authenticate(auth,username)
 
